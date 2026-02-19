@@ -30,11 +30,11 @@ use media_streaming_service;
 data types, and check constraints) here.  You may sequence them in any order that 
 works for you (and runs successfully). */
 
-create table USER (AccountID int primary key, 
+create table USER (
+  AccountID int primary key, 
   name varchar(100) not null, 
   Bdate Date not null, 
-  email varchar(150) not null unique, 
-  check (Bdate > CURRENT_DATE));
+  email varchar(150) not null unique);
 
 
 
