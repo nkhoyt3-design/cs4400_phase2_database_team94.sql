@@ -30,18 +30,29 @@ use media_streaming_service;
 data types, and check constraints) here.  You may sequence them in any order that 
 works for you (and runs successfully). */
 
-create table UserTable(
-  AccountID int primary key, 
-  name varchar(100) not null, 
-  Bdate Date not null, 
-  email varchar(150) not null unique);
-create table Listener(
-  AccountID INT primary key,
-  Stage_Name varchar(100) not null,
-  Biography TEXT,
-  Foreign Key (AccountID) References UserTable(AccountID)
-  ON UPDATE cascade on delete cascade
+CREATE TABLE User(
+  AccountID VARCHAR(64) NOT NULL, 
+  Name VARCHAR(64) NOT NULL, 
+  Bdate DATE NOT NULL, 
+  Email VARCHAR(64) NOT NULL,
+  PRIMARY KEY (AccountID)
 );
-
+CREATE TABLE Listener(
+  AccountID VARCHAR(64) NOT NULL,
+  Username VARCHAR(64) NOT NULL,
+  ContentID VARCHAR(64),
+  SubscriptionID VARCHAR(64),
+  Timestamp DATETIME,
+  PRIMARY KEY (Username),
+  FOREIGN KEY (AccountID) REFERENCES User(AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE,
+  FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+  FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+);
 
 
