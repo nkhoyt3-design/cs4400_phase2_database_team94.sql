@@ -37,6 +37,7 @@ CREATE TABLE User(
   Email VARCHAR(64) NOT NULL,
   PRIMARY KEY (AccountID)
 );
+
 CREATE TABLE Listener(
   AccountID VARCHAR(64) NOT NULL,
   Username VARCHAR(64) NOT NULL,
@@ -55,4 +56,16 @@ CREATE TABLE Listener(
     ON DELETE SET NULL
 );
 
-
+CREATE TABLE Creator(
+  AccountID VARCHAR(64) NOT NULL,
+  Stage_Name VARCHAR(64),
+  Biography VARCHAR(64),
+  Pinned_ContentID VARCHAR(64),
+  PRIMARY KEY (AccountID),
+  FOREIGN KEY (AccountID) REFERENCES UserTable(AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE,
+  FOREIGN KEY (Pinnned_ContentID) REFERENCES Content(ContentID)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+);
