@@ -69,3 +69,36 @@ CREATE TABLE Creator(
     ON UPDATE CASCADE
     ON DELETE SET NULL
 );
+
+CREATE TABLE Socials(
+  AccountID VARCHAR(64) NOT NULL,
+  Handle VARCHAR(64) NOT NULL,
+  Platform VARCHAR(64) NOT NULL,
+  PRIMARY KEY (Handle, Platform)
+);
+
+CREATE TABLE Subsription(
+  SubscriptionID VARCHAR(64) NOT NULL,
+  Start_Date DATE NOT NULL,
+  End_Date DATE NOT NULL,
+  Cost DECIMAL(10, 2) NOT NULL,
+  PRIMARY KEY (SubscriptionID)
+);
+
+-- ADD Individual
+
+-- ADD Family
+
+CREATE TABLE Content(
+  ContentID VARCHAR(64) NOT NULL,
+  Title VARCHAR(64) NOT NULL,
+  Release_Date DATE NOT NULL,
+  Maturity VARCHAR(64) NOT NULL,
+  Length INT NOT NULL,
+  Language VARCHAR(64) NOT NULL,
+  PRIMARY KEY (ContentID)
+);
+
+-- ADD Song
+
+-- ADD Genres
