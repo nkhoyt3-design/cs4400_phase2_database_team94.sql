@@ -92,16 +92,16 @@ CREATE TABLE Individual(
   SubscriptionID VARCHAR(50) NOT NULL,
   Tier VARCHAR(100),
   PRIMARY KEY (SubscriptionID),
-  FOREIGN KEY (SubscriptionID) REFERENCES Subsription(SubscriptionID)
+  FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
 );
 
-CREATE table Family(
+CREATE TABLE Family(
   SubscriptionID VARCHAR(50) NOT NULL,
   Max_Family_Size INT NOT NULL CHECK (Max_Family_Size > 0),
   PRIMARY KEY (SubscriptionID),
-  FOREIGN KEY (SubscriptionID) REFERENCES Subsription(SubscriptionID)
+  FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
 );
@@ -116,20 +116,20 @@ CREATE TABLE Content(
   PRIMARY KEY (ContentID)
 );
 
-CREATE TABLE SONG(
+CREATE TABLE Song(
   ContentID VARCHAR(50) NOT NULL,
-  AlbumnName VARCHAR(100),
+  AlbumName VARCHAR(100),
   AccountID VARCHAR(50) NOT NULL,
   PRIMARY KEY (ContentID),
   FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
     ON UPDATE RESTRICT
-    ON DELETE CASCADE
+    ON DELETE CASCADE,
   FOREIGN KEY (AlbumName, AccountID) REFERENCES Album(Name, AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
 );
 
-CREATE TABLE GENRES(
+CREATE TABLE Genres(
   ContentID VARCHAR(50) NOT NULL,
   Genre VARCHAR(100) NOT NULL,
   PRIMARY KEY (ContentID, Genre),
@@ -142,7 +142,7 @@ CREATE TABLE Podcast_Episode(
   ContentID VARCHAR(50) NOT NULL,
   Topic VARCHAR(100) NOT NULL,
   Episode_Number INT NOT NULL,
-  Podcast_ID VARCHAR(50) NOT NULL,
+  PodcastID VARCHAR(50) NOT NULL,
   PRIMARY KEY (ContentID),
   FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
     ON UPDATE RESTRICT
@@ -156,14 +156,17 @@ CREATE TABLE Podcast_Series(
   PodcastID VARCHAR(50) NOT NULL,
   Description VARCHAR(100) NOT NULL,
   Title VARCHAR(100) NOT NULL,
-  PRIMARY KEY (PodcastID)
+  PRIMARY KEY (PodcastID),
+  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
 );
 
 CREATE TABLE Playlist(
   PlaylistID VARCHAR(50) NOT NULL,
   Name VARCHAR(100) NOT NULL,
   AccountID VARCHAR(50) NOT NULL,
-  PRIMARY KEY (PlaylistID)
+  PRIMARY KEY (PlaylistID),
   FOREIGN KEY (AccountID) REFERENCES Listener(AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
@@ -172,7 +175,7 @@ CREATE TABLE Playlist(
 CREATE TABLE Album(
   Name VARCHAR(100) NOT NULL,
   AccountID VARCHAR(50) NOT NULL,
-  PRIMARY KEY (Name, AccountID)
+  PRIMARY KEY (Name, AccountID),
   FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
@@ -206,7 +209,7 @@ CREATE TABLE Makes_Up(
   PlaylistID VARCHAR(50) NOT NULL,
   ContentID VARCHAR(50) NOT NULL,
   Track_Order INT,
-  PRIMARY KEY (PlaylistID, ContentId),
+  PRIMARY KEY (PlaylistID, ContentID),
   FOREIGN KEY (PlaylistID) REFERENCES Playlist(PlaylistID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE,
