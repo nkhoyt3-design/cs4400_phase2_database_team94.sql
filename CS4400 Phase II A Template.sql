@@ -30,12 +30,16 @@ use media_streaming_service;
 data types, and check constraints) here.  You may sequence them in any order that 
 works for you (and runs successfully). */
 
-CREATE TABLE User(
+
+
+
+CREATE TABLE Users(
   AccountID VARCHAR(50) NOT NULL, 
   Name VARCHAR(100) NOT NULL, 
   Bdate DATE NOT NULL, 
   Email VARCHAR(100) NOT NULL,
-  PRIMARY KEY (AccountID)
+  PRIMARY KEY (AccountID), 
+  unique (email)
   -- someone check if there is a way to handle at least 13 yrs old else this is unhandled
   -- also double check brithday format
   -- double check attributes that MUST be unique w/ unique constraint/arg
@@ -43,10 +47,12 @@ CREATE TABLE User(
 
 CREATE TABLE Subscription(
   SubscriptionID VARCHAR(50) NOT NULL,
-  Start_Date DATE,
-  End_Date DATE,
-  Cost DECIMAL(10, 2),
-  PRIMARY KEY (SubscriptionID)
+  Start_Date DATE NOT NULL,
+  End_Date DATE NOT NULL,
+  Cost DECIMAL(10, 2) NOT NULL,
+  PRIMARY KEY (SubscriptionID),
+  CHECK (Cost >= 0),
+  CHECK (End_Date > Start_Date)
 );
 
 CREATE TABLE Content(
@@ -57,22 +63,23 @@ CREATE TABLE Content(
   Length INT NOT NULL,
   Language VARCHAR(100) NOT NULL,
   PRIMARY KEY (ContentID),
-  CHECK Length >= 60 -- yo someone help me on this I think seconds makes the most sense
-  CHECK Maturity LIKE 'Explicit' OR Maturity LIKE 'Not Explicit' -- also need to ensure only 2 choices someone help
+  CHECK (Length > 0), -- yo someone help me on this I think seconds makes the most sense
+  CHECK (Maturity in ('Explicit', 'Not Explicit'))
+  -- CHECK (Maturity LIKE 'Explicit' OR Maturity LIKE 'Not Explicit') -- also need to ensure only 2 choices someone help
 );
 
 CREATE TABLE Creator(
   AccountID VARCHAR(50) NOT NULL,
   Stage_Name VARCHAR(100),
-  Biography VARCHAR(100),
-  Pinned_ContentID VARCHAR(100),
+  Biography TEXT,
+  Pinned_ContentID VARCHAR(50),
   PRIMARY KEY (AccountID),
-  FOREIGN KEY (AccountID) REFERENCES User(AccountID)
+  FOREIGN KEY (AccountID) REFERENCES Users(AccountID)
     ON UPDATE RESTRICT
-    ON DELETE CASCADE,
-  FOREIGN KEY (Pinned_ContentID) REFERENCES Content(ContentID)
-    ON UPDATE RESTRICT
-    ON DELETE SET NULL
+    ON DELETE CASCADE
+  -- FOREIGN KEY (Pinned_ContentID) REFERENCES Content(ContentID)
+   -- ON UPDATE RESTRICT
+    -- ON DELETE SET NULL.    NICK COMMENTED THESE LINES OUT NOT SURE IF RIGHT
 );
 
 CREATE TABLE Listener(
@@ -82,7 +89,8 @@ CREATE TABLE Listener(
   SubscriptionID VARCHAR(100),
   Timestamp DATETIME,
   PRIMARY KEY (Username),
-  FOREIGN KEY (AccountID) REFERENCES User(AccountID)
+  Unique (AccountID),
+  FOREIGN KEY (AccountID) REFERENCES Users(AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE,
   FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
@@ -90,7 +98,8 @@ CREATE TABLE Listener(
     ON DELETE SET NULL,
   FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
     ON UPDATE CASCADE
-    ON DELETE SET NULL,
+    ON DELETE SET NULL
+    
   -- is it even possible to check dates to ensure subscription min 1 month? see if we can add check
 );
 
@@ -157,7 +166,7 @@ CREATE TABLE Podcast_Series(
   PodcastID VARCHAR(50) NOT NULL,
   Description VARCHAR(100) NOT NULL,
   Title VARCHAR(100) NOT NULL,
-  AccountID VARCHAR(100) NOT NULL,
+  AccountID VARCHAR(50) NOT NULL,
   PRIMARY KEY (PodcastID),
   FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
     ON UPDATE RESTRICT
