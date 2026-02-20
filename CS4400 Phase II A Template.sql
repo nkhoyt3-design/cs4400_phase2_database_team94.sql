@@ -65,7 +65,7 @@ CREATE TABLE Creator(
   FOREIGN KEY (AccountID) REFERENCES User(AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE,
-  FOREIGN KEY (Pinnned_ContentID) REFERENCES Content(ContentID)
+  FOREIGN KEY (Pinned_ContentID) REFERENCES Content(ContentID)
     ON UPDATE CASCADE
     ON DELETE SET NULL
 );
@@ -80,8 +80,8 @@ CREATE TABLE Socials(
     ON DELETE CASCADE
 );
 
-CREATE TABLE Subsription(
-  SubscriptionID VARCHAR(50),
+CREATE TABLE Subscription(
+  SubscriptionID VARCHAR(50) NOT NULL,
   Start_Date DATE,
   End_Date DATE,
   Cost DECIMAL(10, 2),
@@ -89,7 +89,7 @@ CREATE TABLE Subsription(
 );
 
 CREATE TABLE Individual(
-  SubscriptionID VARCHAR(50),
+  SubscriptionID VARCHAR(50) NOT NULL,
   Tier VARCHAR(100),
   PRIMARY KEY (SubscriptionID),
   FOREIGN KEY (SubscriptionID) REFERENCES Subsription(SubscriptionID)
@@ -97,11 +97,11 @@ CREATE TABLE Individual(
     ON DELETE CASCADE
 );
 
-CREATE TABLE Family(
-  SubscriptionID VARCHAR(50),
-  Max_Family_Size INT,
+CREATE table Family(
+  SubscriptionID VARCHAR(50) NOT NULL,
+  Max_Family_Size INT NOT NULL CHECK (Max_Family_Size > 0),
   PRIMARY KEY (SubscriptionID),
-  FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
+  FOREIGN KEY (SubscriptionID) REFERENCES Subsription(SubscriptionID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
 );
@@ -124,7 +124,7 @@ CREATE TABLE SONG(
   FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
-  FOREIGN KEY (AlbumnName, AccountID) REFERENCES Album(Name, AccountID)
+  FOREIGN KEY (AlbumName, AccountID) REFERENCES Album(Name, AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
 );
