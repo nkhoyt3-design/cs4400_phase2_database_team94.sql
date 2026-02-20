@@ -4,8 +4,8 @@
 -- Team __
 -- Nicholas Hoyt (nhoyt6)
 -- John Neubauer (jneubauer3)
--- Team Member Name (GT username)
--- Team Member Name (GT username)
+-- Nathan Tran (ntran306)
+-- Srivi Hathwar (shathwar6)
 
 -- Directions:
 -- Please follow all instructions for Phase II A as listed in the instructions document.
