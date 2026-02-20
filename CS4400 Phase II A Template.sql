@@ -3,7 +3,7 @@
 
 -- Team __
 -- Nicholas Hoyt (nhoyt6)
--- Team Member Name (GT username)
+-- John Neubauer (jneubauer3)
 -- Team Member Name (GT username)
 -- Team Member Name (GT username)
 
@@ -97,18 +97,36 @@ CREATE TABLE Individual(
     ON DELETE CASCADE
 );
 
--- ADD Family
+CREATE TABLE Family(
+  SubscriptionID VARCHAR(50),
+  Max_Family_Size INT,
+  PRIMARY KEY (SubscriptionID),
+  FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Content(
-  ContentID VARCHAR(64) NOT NULL,
-  Title VARCHAR(64) NOT NULL,
+  ContentID VARCHAR(50) NOT NULL,
+  Title VARCHAR(100) NOT NULL,
   Release_Date DATE NOT NULL,
-  Maturity VARCHAR(64) NOT NULL,
+  Maturity VARCHAR(100) NOT NULL,
   Length INT NOT NULL,
-  Language VARCHAR(64) NOT NULL,
+  Language VARCHAR(100) NOT NULL,
   PRIMARY KEY (ContentID)
 );
 
--- ADD Song
+CREATE TABLE SONG(
+  ContentID VARCHAR(50) NOT NULL,
+  AlbumnName VARCHAR(100),
+  AccountID VARCHAR(50) NOT NULL,
+  PRIMARY KEY (ContentID),
+  FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+  FOREIGN KEY (AlbumnName, AccountID) REFERENCES Album(Name, AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+);
 
 -- ADD Genres
