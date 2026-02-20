@@ -30,9 +30,6 @@ use media_streaming_service;
 data types, and check constraints) here.  You may sequence them in any order that 
 works for you (and runs successfully). */
 
-
-
-
 CREATE TABLE Users(
   AccountID VARCHAR(50) NOT NULL, 
   Name VARCHAR(100) NOT NULL, 
@@ -143,7 +140,7 @@ CREATE TABLE Album(
 CREATE TABLE Song(
   ContentID VARCHAR(50) NOT NULL,
   AlbumName VARCHAR(100),
-  AccountID VARCHAR(50) NOT NULL,
+  AccountID VARCHAR(50),  -- had to make nullable
   PRIMARY KEY (ContentID),
   FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
     ON UPDATE RESTRICT
