@@ -97,7 +97,14 @@ CREATE TABLE Individual(
     ON DELETE CASCADE
 );
 
--- ADD Family
+CREATE table Family(
+  SubscriptionID int primary key,
+  Max_Family_Size int not null check (Max_Family_Size > 0),
+  
+  FOREIGN KEY (SubscriptionID) REFERENCES Subsription(SubscriptionID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+);
 
 CREATE TABLE Content(
   ContentID VARCHAR(64) NOT NULL,
