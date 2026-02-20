@@ -31,18 +31,18 @@ data types, and check constraints) here.  You may sequence them in any order tha
 works for you (and runs successfully). */
 
 CREATE TABLE User(
-  AccountID VARCHAR(64) NOT NULL, 
-  Name VARCHAR(64) NOT NULL, 
+  AccountID VARCHAR(50) NOT NULL, 
+  Name VARCHAR(100) NOT NULL, 
   Bdate DATE NOT NULL, 
-  Email VARCHAR(64) NOT NULL,
+  Email VARCHAR(100) NOT NULL,
   PRIMARY KEY (AccountID)
 );
 
 CREATE TABLE Listener(
-  AccountID VARCHAR(64) NOT NULL,
-  Username VARCHAR(64) NOT NULL,
-  ContentID VARCHAR(64),
-  SubscriptionID VARCHAR(64),
+  AccountID VARCHAR(50) NOT NULL,
+  Username VARCHAR(50) NOT NULL,
+  ContentID VARCHAR(100),
+  SubscriptionID VARCHAR(100),
   Timestamp DATETIME,
   PRIMARY KEY (Username),
   FOREIGN KEY (AccountID) REFERENCES User(AccountID)
@@ -57,12 +57,12 @@ CREATE TABLE Listener(
 );
 
 CREATE TABLE Creator(
-  AccountID VARCHAR(64) NOT NULL,
-  Stage_Name VARCHAR(64),
-  Biography VARCHAR(64),
-  Pinned_ContentID VARCHAR(64),
+  AccountID VARCHAR(50) NOT NULL,
+  Stage_Name VARCHAR(100),
+  Biography VARCHAR(100),
+  Pinned_ContentID VARCHAR(100),
   PRIMARY KEY (AccountID),
-  FOREIGN KEY (AccountID) REFERENCES UserTable(AccountID)
+  FOREIGN KEY (AccountID) REFERENCES User(AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE,
   FOREIGN KEY (Pinnned_ContentID) REFERENCES Content(ContentID)
@@ -71,21 +71,31 @@ CREATE TABLE Creator(
 );
 
 CREATE TABLE Socials(
-  AccountID VARCHAR(64) NOT NULL,
-  Handle VARCHAR(64) NOT NULL,
-  Platform VARCHAR(64) NOT NULL,
-  PRIMARY KEY (Handle, Platform)
+  AccountID VARCHAR(50) NOT NULL,
+  Handle VARCHAR(100),
+  Platform VARCHAR(100),
+  PRIMARY KEY (Handle, Platform),
+  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
 );
 
 CREATE TABLE Subsription(
-  SubscriptionID VARCHAR(64) NOT NULL,
-  Start_Date DATE NOT NULL,
-  End_Date DATE NOT NULL,
-  Cost DECIMAL(10, 2) NOT NULL,
+  SubscriptionID VARCHAR(50),
+  Start_Date DATE,
+  End_Date DATE,
+  Cost DECIMAL(10, 2),
   PRIMARY KEY (SubscriptionID)
 );
 
--- ADD Individual
+CREATE TABLE Individual(
+  SubscriptionID VARCHAR(50),
+  Tier VARCHAR(100),
+  PRIMARY KEY (SubscriptionID),
+  FOREIGN KEY (SubscriptionID) REFERENCES Subsription(SubscriptionID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+);
 
 -- ADD Family
 
