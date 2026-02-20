@@ -38,22 +38,22 @@ CREATE TABLE User(
   PRIMARY KEY (AccountID)
 );
 
-CREATE TABLE Listener(
-  AccountID VARCHAR(50) NOT NULL,
-  Username VARCHAR(50) NOT NULL,
-  ContentID VARCHAR(100),
-  SubscriptionID VARCHAR(100),
-  Timestamp DATETIME,
-  PRIMARY KEY (Username),
-  FOREIGN KEY (AccountID) REFERENCES User(AccountID)
-    ON UPDATE RESTRICT
-    ON DELETE CASCADE,
-  FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
-    ON UPDATE CASCADE
-    ON DELETE SET NULL,
-  FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
-    ON UPDATE CASCADE
-    ON DELETE SET NULL
+CREATE TABLE Subscription(
+  SubscriptionID VARCHAR(50) NOT NULL,
+  Start_Date DATE,
+  End_Date DATE,
+  Cost DECIMAL(10, 2),
+  PRIMARY KEY (SubscriptionID)
+);
+
+CREATE TABLE Content(
+  ContentID VARCHAR(50) NOT NULL,
+  Title VARCHAR(100) NOT NULL,
+  Release_Date DATE NOT NULL,
+  Maturity VARCHAR(100) NOT NULL,
+  Length INT NOT NULL,
+  Language VARCHAR(100) NOT NULL,
+  PRIMARY KEY (ContentID)
 );
 
 CREATE TABLE Creator(
@@ -70,22 +70,22 @@ CREATE TABLE Creator(
     ON DELETE SET NULL
 );
 
-CREATE TABLE Socials(
+CREATE TABLE Listener(
   AccountID VARCHAR(50) NOT NULL,
-  Handle VARCHAR(100),
-  Platform VARCHAR(100),
-  PRIMARY KEY (Handle, Platform),
-  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
+  Username VARCHAR(50) NOT NULL,
+  ContentID VARCHAR(100),
+  SubscriptionID VARCHAR(100),
+  Timestamp DATETIME,
+  PRIMARY KEY (Username),
+  FOREIGN KEY (AccountID) REFERENCES User(AccountID)
     ON UPDATE RESTRICT
-    ON DELETE CASCADE
-);
-
-CREATE TABLE Subscription(
-  SubscriptionID VARCHAR(50) NOT NULL,
-  Start_Date DATE,
-  End_Date DATE,
-  Cost DECIMAL(10, 2),
-  PRIMARY KEY (SubscriptionID)
+    ON DELETE CASCADE,
+  FOREIGN KEY (ContentID) REFERENCES Content(ContentID)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+  FOREIGN KEY (SubscriptionID) REFERENCES Subscription(SubscriptionID)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
 );
 
 CREATE TABLE Individual(
@@ -106,14 +106,23 @@ CREATE TABLE Family(
     ON DELETE CASCADE
 );
 
-CREATE TABLE Content(
-  ContentID VARCHAR(50) NOT NULL,
-  Title VARCHAR(100) NOT NULL,
-  Release_Date DATE NOT NULL,
-  Maturity VARCHAR(100) NOT NULL,
-  Length INT NOT NULL,
-  Language VARCHAR(100) NOT NULL,
-  PRIMARY KEY (ContentID)
+CREATE TABLE Socials(
+  AccountID VARCHAR(50) NOT NULL,
+  Handle VARCHAR(100),
+  Platform VARCHAR(100),
+  PRIMARY KEY (Handle, Platform),
+  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+);
+
+CREATE TABLE Album(
+  Name VARCHAR(100) NOT NULL,
+  AccountID VARCHAR(50) NOT NULL,
+  PRIMARY KEY (Name, AccountID),
+  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
 );
 
 CREATE TABLE Song(
@@ -138,6 +147,17 @@ CREATE TABLE Genres(
     ON DELETE CASCADE
 );
 
+CREATE TABLE Podcast_Series(
+  PodcastID VARCHAR(50) NOT NULL,
+  Description VARCHAR(100) NOT NULL,
+  Title VARCHAR(100) NOT NULL,
+  AccountID VARCHAR(100) NOT NULL,
+  PRIMARY KEY (PodcastID),
+  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
+    ON UPDATE RESTRICT
+    ON DELETE CASCADE
+);
+
 CREATE TABLE Podcast_Episode(
   ContentID VARCHAR(50) NOT NULL,
   Topic VARCHAR(100) NOT NULL,
@@ -152,31 +172,12 @@ CREATE TABLE Podcast_Episode(
     ON DELETE CASCADE
 );
 
-CREATE TABLE Podcast_Series(
-  PodcastID VARCHAR(50) NOT NULL,
-  Description VARCHAR(100) NOT NULL,
-  Title VARCHAR(100) NOT NULL,
-  PRIMARY KEY (PodcastID),
-  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
-    ON UPDATE RESTRICT
-    ON DELETE CASCADE
-);
-
 CREATE TABLE Playlist(
   PlaylistID VARCHAR(50) NOT NULL,
   Name VARCHAR(100) NOT NULL,
   AccountID VARCHAR(50) NOT NULL,
   PRIMARY KEY (PlaylistID),
   FOREIGN KEY (AccountID) REFERENCES Listener(AccountID)
-    ON UPDATE RESTRICT
-    ON DELETE CASCADE
-);
-
-CREATE TABLE Album(
-  Name VARCHAR(100) NOT NULL,
-  AccountID VARCHAR(50) NOT NULL,
-  PRIMARY KEY (Name, AccountID),
-  FOREIGN KEY (AccountID) REFERENCES Creator(AccountID)
     ON UPDATE RESTRICT
     ON DELETE CASCADE
 );
