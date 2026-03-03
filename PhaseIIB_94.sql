@@ -3,7 +3,7 @@
 
 -- Team 94
 -- Srivarun Hathwar (shathwar6)
--- Team Member Name (GT username)
+-- Nicholas Hoyt (nhoyt6)
 -- Team Member Name (GT username)
 -- Team Member Name (GT username)
 
