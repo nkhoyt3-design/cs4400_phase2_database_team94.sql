@@ -4,8 +4,8 @@
 -- Team 94
 -- Srivarun Hathwar (shathwar6)
 -- Nicholas Hoyt (nhoyt6)
--- Team Member Name (GT username)
--- Team Member Name (GT username)
+-- Nathan Tran (ntran306)
+-- John Neubauer (jneubauer3)
 
 -- Directions:
 -- Please follow all instructions for Phase II B as listed in the instructions document.
