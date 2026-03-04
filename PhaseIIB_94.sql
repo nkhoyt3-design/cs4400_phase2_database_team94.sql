@@ -108,7 +108,8 @@ begin
 	('JS9083', 'Young Sean', 'I write songs for the greatest moments in life.', 'SKYBLUE'),
 	('MC9055', NULL, 'Former startup PM interviewing operators about the messy middle of building products', NULL),
 	('MD5481', 'Delga', 'LA-based indie-pop singer blending bilingual hooks with lo-fi beats', 'PAPER'),
-	('AB8247', 'Dre Ben', 'Toronto producer-rapper crafting jazzy boom-bap with modern soul', 'POLAROID');
+	('AB8247', 'Dre Ben', 'Toronto producer-rapper crafting jazzy boom-bap with modern soul', 'POLAROID'),
+    ('AH1050', Null, 'Trying to get into the music scene!', Null);
     -- albums
     insert into album (creatorID, album_name) values
     ('JS9083', 'Starlight Meadows'),
@@ -119,15 +120,16 @@ begin
     -- songs
     insert into song (contentID, creatorID, album_name) values
     ('SKYBLUE', 'JS9083', 'Starlight Meadows'),
-    ('ECHOES', 'PN7413', NULL),
     ('PAPER', 'MD5481', 'Sunflower Motel'),
+    ('ECHOES', 'PN7413', NULL),
     ('POLAROID', 'AB8247', 'Copper Lines'),
     ('MEADOW', 'JS9083', 'Starlight Meadows'),
     ('VELVET', 'PN7413', 'Velvet Hour'),
     ('CHECKOUT', 'MD5481', 'Sunflower Motel'),
     ('MIDNIGHT', 'MD5481', 'Night Swim'),
     ('TIDES', 'MD5481', 'Night Swim'),
-    ('BRASS', 'AB8247', 'Copper Lines');
+    ('BRASS', 'AB8247', 'Copper Lines')
+    ;
     -- song genres
     insert into genres (songID, genre) values
     ('SKYBLUE', 'Pop'),
@@ -187,7 +189,8 @@ begin
     ('MC9055', 'TikTok', 'buildmode_tok'),
     ('TS4389', 'Instagram', 'mindcast'),
     ('TS4389', 'TikTok', 'mindcastpod'),
-    ('TS4389', 'Twitch', 'theolive');
+    ('TS4389', 'Twitch', 'theolive'),
+    ('AH1050', 'Instagram', 'ahartofgold');
     -- podcast series
     insert into podcast_series (podcastID, title, description) values
     ('POD1111', 'Build Mode S1', 'Build Mode is an operator-driven conversation about building products—tactics, experiments, metrics, and shipping at speed.'),
@@ -364,6 +367,13 @@ even if there are 0 users streaming.
 HINT: COALESCE() can be helpful here. */
 -- ---------------------------------------------------------------------------
 -- create or replace view count_streams_view as
+
+
+
+
+
+
+
 
 
 
