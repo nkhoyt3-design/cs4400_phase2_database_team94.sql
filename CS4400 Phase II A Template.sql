@@ -358,7 +358,11 @@ Select each listener's full name, the subscription ID they are enrolled in,
 and the cost of the plan. Order this view from newest to oldest enrollment date,
 breaking ties by the listeners' names in ascending alphabetical order. */
 -- ---------------------------------------------------------------------------
--- create or replace view recent_subscriptions_view as
+create or replace view recent_subscriptions_view as
+select u.name, s.subscriptionID, s.cost from user u
+join listener l on u.accountID = l.accountID
+join subscription s on l.subscription = s.subscriptionID 
+order by s.start_date desc, u.name asc limit 3;
 
 
 -- [9] count_streams_view
