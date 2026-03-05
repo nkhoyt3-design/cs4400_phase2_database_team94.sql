@@ -417,7 +417,13 @@ Then, for each of these songs, select how many users are currently streaming the
 even if there are 0 users streaming. 
 HINT: COALESCE() can be helpful here. */
 -- ---------------------------------------------------------------------------
--- create or replace view count_streams_view as
+create or replace view count_streams_view as 
+select mu.songID, count(l.accountID) as num_streams from makes_up mu
+join (
+    select playlistID, max(track_order) as max_s from  makes_up group by playlistID
+) as mt on mu.playlistID = mt.playlistID and mu.track_order = mt.max_s
+left join listener l on l.streams = mu.songID
+group by mu.songID;
 
 
 
