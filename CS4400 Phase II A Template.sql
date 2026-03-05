@@ -348,7 +348,11 @@ and separated by a semi-colon and a space.
 Order the genres of this view in descending order of how many songs belong to a genre. 
 HINT: GROUP_CONCAT() and the separator clause can be helpful here. */
 -- ---------------------------------------------------------------------------
--- create or replace view genre_distribution_view as
+create or replace view genre_distribution_view as
+select g.genre, count(*) as num_songs, GROUP_CONCAT(s.contentID order by s.contentID asc separator '; ') as contentIDs from genres g
+join song s on g.songID = s.contentID
+group by genre
+order by num_songs desc;
 
 
 -- [8] recent_subscriptions_view
