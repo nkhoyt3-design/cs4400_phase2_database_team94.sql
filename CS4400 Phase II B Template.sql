@@ -368,7 +368,12 @@ and if the plan is Active, how many days remaining until expiration from the cur
 If the plan is Inactive, display null remaining days. Order this view by subscription ID ascending.
 HINT: The CURDATE and TIMESTAMPDIFF functions can be helpful here.*/
 -- ---------------------------------------------------------------------------
--- create or replace view subscriptions_view as
+create or replace view subscriptions_view as
+SELECT s.subscriptionID, l.accountID, s.subscription_type, s.max_family_size, s.tier, 
+s.start_date, s.end_date, IF(s.end_date < CURDATE(), 'Inactive', 'Active') AS status, 
+IF(s.end_date < CURDATE(), NULL, TIMESTAMPDIFF(DAY, CURDATE(), s.end_date)) AS days_remaining
+FROM subscription s LEFT JOIN listener l ON l.subscription = s.subscriptionID
+ORDER BY s.subscriptionID ASC;
 
 
 -- [7] genre_distribution_view
