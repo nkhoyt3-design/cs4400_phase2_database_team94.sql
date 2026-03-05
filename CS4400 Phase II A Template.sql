@@ -306,8 +306,24 @@ should not appear in this view.
 HINT: Subqueries, min(), and max() can be helpful here.
 */
 -- -----------------------------------------------------------------------------
--- create or replace view playlists_view as
-
+create or replace view playlists_view as 
+select c.playlistID, min(c.album_name) as album_name
+from (
+    select mu.playlistID, s.album_name, count(mu.songID) as album_count
+    from makes_up mu join song s on mu.songID = s.contentID
+    where s.album_name is not null
+    group by mu.playlistID, s.album_name
+) as c
+join (   
+    select playlistID, max(album_count) as max_count
+    from (
+        select mu.playlistID, s.album_name, count(mu.songID) as album_count
+        from makes_up mu join song s on mu.songID = s.contentID
+        where s.album_name is not null
+        group by mu.playlistID, s.album_name
+    ) as albumn_counts group by playlistID
+) as m_counts on c.playlistID = m_counts.playlistID and c.album_count = m_counts.max_count
+group by c.playlistID;
     
 -- [4] two_creator_view
 -- -------------------------------------------------------------------------
