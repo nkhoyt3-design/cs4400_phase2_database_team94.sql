@@ -320,8 +320,11 @@ HINT: GROUP_CONCAT() and the separator clause can be helpful here.
 number of episodes, and total length in hours of all episodes combined.
 Report the length to 4 decimal places. */
 -- ---------------------------------------------------------------------------
--- create or replace view podcasts_view as
-
+create or replace view podcasts_view as
+select ps.podcastID, ps.title, count(*) as num_episodes, round(sum(c.content_length) / 3600, 4) as total_length from podcast_series ps
+join podcast_episode pe on ps.podcastID = pe.podcastID
+join content c on pe.contentID = c.contentID
+group by pe.podcastID;
 
 -- [6] subscriptions_view
 -- ---------------------------------------------------------------------------
