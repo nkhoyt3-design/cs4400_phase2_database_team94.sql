@@ -282,7 +282,14 @@ For each user, it displays their account id, full name, and number of distinct f
 If the user is not a listener, the view shows that the user has 0 friends.
 HINT: Can be useful here: UNION and the COALESCE function */
 -- -----------------------------------------------------------------------------
--- create or replace view friends_view as 
+create or replace view friends_view as 
+select u.accountid, u.name as full_name,  coalesce(count(f.friendee), 0 ) as num_friends
+from listener l join user u on l.accountid = u.accountid
+left join friends f on l.accountid = f.friender
+group by u.accountid, u.name
+union
+select u.accountid, u.name as full_name, 0 as num_friends
+from user u where u.accountid not in (select accountid from listener);
 
 	
 -- -----------------------------------------------------------------------------
