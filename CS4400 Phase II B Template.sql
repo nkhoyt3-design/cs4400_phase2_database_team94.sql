@@ -292,9 +292,10 @@ If the user is not a listener, the view shows that the user has 0 friends.
 HINT: Can be useful here: UNION and the COALESCE function */
 -- -----------------------------------------------------------------------------
 create or replace view friends_view as 
-select u.accountid, u.name as full_name,  coalesce(count(f.friendee), 0 ) as num_friends
+select u.accountid, u.name as full_name,  coalesce(count(distinct f.friendee) + count(distinct fe.friender), 0 ) as num_friends
 from listener l join user u on l.accountid = u.accountid
 left join friends f on l.accountid = f.friender
+left join friends fe on l.accountid = fe.friendee
 group by u.accountid, u.name
 union
 select u.accountid, u.name as full_name, 0 as num_friends
