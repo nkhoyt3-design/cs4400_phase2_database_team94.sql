@@ -298,7 +298,8 @@ left join friends f on l.accountid = f.friender
 group by u.accountid, u.name
 union
 select u.accountid, u.name as full_name, 0 as num_friends
-from user u where u.accountid not in (select accountid from listener);
+from user u where u.accountid not in (select accountid from listener)
+order by accountid asc;
 
 	
 -- -----------------------------------------------------------------------------
