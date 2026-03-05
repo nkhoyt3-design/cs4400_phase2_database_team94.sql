@@ -311,7 +311,14 @@ of the creator table.
 HINT: GROUP_CONCAT() and the separator clause can be helpful here.
 */
 -- ---------------------------------------------------------------------------
--- create or replace view two_creator_view as
+create or replace view two_creator_view as
+select group_concat(distinct concat(soc.platform, ': ', soc.handle) order by soc.platform asc separator ', ') as handles, cr.pinned, 
+group_concat(distinct g.genre order by g.genre asc separator ', ') as genres from creator cr
+left join socials soc on soc.creatorID = cr.accountID
+left join song son on cr.accountID = son.creatorID
+left join genres g on son.contentID = g.songID
+group by cr.accountID limit 2 offset 2
+;
 
 
 -- [5] podcasts_view
@@ -348,7 +355,7 @@ and separated by a semi-colon and a space.
 Order the genres of this view in descending order of how many songs belong to a genre. 
 HINT: GROUP_CONCAT() and the separator clause can be helpful here. */
 -- ---------------------------------------------------------------------------
-create or replace view genre_distribution_view as
+crecate or replace view genre_distribution_view as
 select g.genre, count(*) as num_songs, GROUP_CONCAT(s.contentID order by s.contentID asc separator '; ') as contentIDs from genres g
 join song s on g.songID = s.contentID
 group by genre
