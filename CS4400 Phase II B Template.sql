@@ -5,7 +5,7 @@
 -- Srivarun Hathwar (shathwar6)
 -- Nicholas Hoyt (nhoyt6)
 -- Nathan Tran (ntran306)
--- Team Member Name (GT username)
+-- John Neubauer (jneubauer3)
 
 -- Directions:
 -- Please follow all instructions for Phase II B as listed in the instructions document.
@@ -270,8 +270,17 @@ and a list of the creator's song titles in descending order of current streams
 (in the case of ties, order by ascending song title), separated by a comma and a space.
 HINT: the GROUP_CONCAT function can be useful here. */
 -- -----------------------------------------------------------------------------
--- create or replace view creator_songs_view as
-
+create or replace view creator_songs_view as
+SELECT c.stage_name, COUNT(DISTINCT l.accountID) AS total_streams, GROUP_CONCAT(
+    DISTINCT ct.title ORDER BY (SELECT COUNT(*) FROM listener WHERE streams = s.contentID)
+    DESC, ct.title ASC SEPARATOR ', '
+) AS songs
+FROM creator c JOIN creates cs ON c.accountID = cs.creatorID
+JOIN song s ON cs.contentID = s.contentID
+JOIN content ct ON s.contentID = ct.contentID
+LEFT JOIN listener l ON l.streams = s.contentID
+WHERE c.stage_name IS NOT NULL 
+GROUP BY c.stage_name ORDER BY total_streams ASC, c.stage_name ASC;
 
 
 -- -----------------------------------------------------------------------------
