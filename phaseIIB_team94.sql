@@ -378,11 +378,18 @@ If the plan is Inactive, display null remaining days. Order this view by subscri
 HINT: The CURDATE and TIMESTAMPDIFF functions can be helpful here.*/
 -- ---------------------------------------------------------------------------
 create or replace view subscriptions_view as
-SELECT s.subscriptionID, l.accountID, s.subscription_type, s.max_family_size, s.tier, 
-s.start_date, s.end_date, IF(s.end_date < CURDATE(), 'Inactive', 'Active') AS status, 
-IF(s.end_date < CURDATE(), NULL, TIMESTAMPDIFF(DAY, CURDATE(), s.end_date)) AS days_remaining
-FROM subscription s LEFT JOIN listener l ON l.subscription = s.subscriptionID
-ORDER BY s.subscriptionID ASC;
+select s.subscriptionID, l.accountID, s.subscription_type, s.max_family_size, s.tier, 
+    s.start_date, s.end_date, 'Active' as status, 
+    TIMESTAMPDIFF(day, CURDATE(), s.end_date) as days_remaining
+from subscription s left join listener l on l.subscription = s.subscriptionID
+where s.end_date >= CURDATE()
+union
+select s.subscriptionID, l.accountID, s.subscription_type, s.max_family_size, s.tier, 
+    s.start_date, s.end_date, 'Inactive' as status, 
+    null as days_remaining
+from subscription s left join listener l on l.subscription = s.subscriptionID
+where s.end_date < CURDATE()
+order by subscriptionID asc;
 
 
 -- [7] genre_distribution_view
