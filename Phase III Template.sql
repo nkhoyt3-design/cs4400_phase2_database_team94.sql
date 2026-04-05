@@ -47,6 +47,27 @@ create procedure renew_subscription(
 )
 sp_main: begin
 	-- code here
+		if ip_listenerID is null or ip_new_date is null then 
+		leave sp_main;
+    end if;
+    if not exists (select 1 from listener where listenerID = ip_listenerID) then 
+		leave sp_main;
+    end if;
+    if not exists (select 1 from listener where listenerID = ip_listenerID and subscription is not null) then 
+		leave sp_main;
+    end if;
+    if not exists (select 1 from subscription where listenerID = ip_listenerID and end_date >= curdate()) then 
+    leave sp_main;
+    end if;
+    if ip_new_date <= curdate() then 
+		leave sp_main;
+    end if;
+    if not exists (select 1 from subscription where listenerID = ip_listenerID and ip_new_date > end_date) then 
+		leave sp_main;
+    end if;
+    update subscription
+    set end_date = ip_new_date
+    where listenerID = ip_listenerID;
 end //
 delimiter ;
 
