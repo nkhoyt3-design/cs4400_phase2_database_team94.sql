@@ -92,6 +92,26 @@ create procedure duplicate_playlist(
 )
 sp_main: begin
 	-- code here
+	if ip_playlistID is null or ip_new_playlistID is null then
+		leave sp_main;
+	end if;
+    if not exists (select * from playlist where playlistID = ip_playlistID) then
+		leave sp_main;
+    end if;
+    if not exists (select * from makes_up where playlistID = ip_playlistID) then
+		leave sp_main;
+	end if;
+    if exists (select playlistID from playlist where playlistID = ip_new_playlistID) then
+		leave sp_main;
+	end if;
+    insert into playlist (playlistID, `name`, listenerID)
+    select ip_new_playlistID, concat('Copy of ', `name`), listenerID
+    from playlist
+    where playlistID = ip_playlistID;
+    insert into makes_up (songID, playlistID, track_order)
+    select songID, ip_new_playlistID, track_order
+    from makes_up
+    where  playlistID = ip_playlistID;
 end //
 delimiter ;
 
