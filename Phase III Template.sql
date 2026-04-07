@@ -141,6 +141,9 @@ create procedure add_podcast_episode(
 )
 sp_main: begin
 	-- code here
+    if ip_creatorID is null or ip_contentID is null then
+        leave sp_main;
+    end if;
 end //
 delimiter ;
 
