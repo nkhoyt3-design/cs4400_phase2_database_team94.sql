@@ -8,7 +8,7 @@
 -- Team __
 -- Nicholas Hoyt (nhoyt6)
 >>>>>>> 4ba46f3946454cc565c741dfb237d41def97fb66
--- Team Member Name (GT username)
+-- Srivarun Hathwar (shathwar6)
 -- Nathan Tran (ntran306)
 -- John Neubauer (jneubauer3)
 
