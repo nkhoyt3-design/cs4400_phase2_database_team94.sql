@@ -1,8 +1,13 @@
 -- CS4400: Introduction to Database Systems (Spring 2026)
 -- Phase III: Stored Procedures [v0] [March 12th, 2026]
 
+<<<<<<< HEAD
 -- Team 94
 -- Team Member Name (GT username)
+=======
+-- Team __
+-- Nicholas Hoyt (nhoyt6)
+>>>>>>> 4ba46f3946454cc565c741dfb237d41def97fb66
 -- Team Member Name (GT username)
 -- Nathan Tran (ntran306)
 -- John Neubauer (jneubauer3)
