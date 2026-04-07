@@ -1,11 +1,11 @@
 -- CS4400: Introduction to Database Systems (Spring 2026)
 -- Phase III: Stored Procedures [v0] [March 12th, 2026]
 
--- Team __
+-- Team 94
 -- Team Member Name (GT username)
 -- Team Member Name (GT username)
 -- Nathan Tran (ntran306)
--- Team Member Name (GT username)
+-- John Neubauer (jneubauer3)
 
 -- Directions:
 -- Please follow all instructions for Phase III in the instructions document.
