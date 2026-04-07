@@ -192,7 +192,26 @@ create procedure stream_content(
     in ip_contentID varchar(20)
 )
 sp_main: begin
-	-- code here
+	if ip_listenerID is null or ip_contentID is null then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from listener where accountID = ip_listenerID) then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from content where contentID = ip_contentID) then
+        leave sp_main;
+    end if;
+
+    if exists (select * from content where contentID = ip_contentID and maturity = 'Explicit') then
+        if (select TIMESTAMPDIFF(YEAR, bdate, CURDATE()) from user where accountID = ip_listenerID) < 18 then
+            leave sp_main;
+        end if;
+    end if;
+
+    update listener
+    set streams = ip_contentID, timestamp = 0 where accountID = ip_listenerID;
 end //
 delimiter ;
 
