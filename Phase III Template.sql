@@ -46,28 +46,26 @@ create procedure renew_subscription(
     in ip_new_date date
 )
 sp_main: begin
-	-- code here
-		if ip_listenerID is null or ip_new_date is null then 
+	-- code here - remove comments below later
+	if ip_listenerID is null or ip_new_date is null then 
 		leave sp_main;
     end if;
-    if not exists (select 1 from listener where listenerID = ip_listenerID) then 
+    if not exists (select 1 from listener where accountID = ip_listenerID) then 
 		leave sp_main;
     end if;
-    if not exists (select 1 from listener where listenerID = ip_listenerID and subscription is not null) then 
+    if not exists (select 1 from listener where accountID = ip_listenerID and subscription is not null) then 
 		leave sp_main;
     end if;
-    if not exists (select 1 from subscription where listenerID = ip_listenerID and end_date >= curdate()) then 
-    leave sp_main;
-    end if;
-    if ip_new_date <= curdate() then 
+    if ip_new_date <= curdate() then
 		leave sp_main;
     end if;
-    if not exists (select 1 from subscription where listenerID = ip_listenerID and ip_new_date > end_date) then 
+    if not exists (select 1 from subscription s join listener l on l.subscription = s.subscriptionID where l.accountID = ip_listenerID and ip_new_date > s.end_date) then
 		leave sp_main;
     end if;
     update subscription
     set end_date = ip_new_date
-    where listenerID = ip_listenerID;
+    where subscriptionID = (select subscription
+		from listener where accountID = ip_listenerID);
 end //
 delimiter ;
 
@@ -204,6 +202,22 @@ create procedure pin_content(
 )
 sp_main: begin
 	-- code here
+    if ip_creatorID is null or ip_contentID is null then
+        leave sp_main;
+    end if;
+    if not exists (select 1 from creator where ip_creatorID = accountID) then
+        leave sp_main;
+    end if;
+    if not exists (select 1 from content where ip_contentID = contentID) then
+        leave sp_main;
+    end if;
+    if not exists (select 1 from creates where creatorID = ip_creatorID and ip_contentID = contentID) then
+        leave sp_main;
+    end if;
+
+    update creator 
+    set pinned = ip_contentID 
+    where ip_creatorID = accountID;
 end //
 delimiter ; 
 
