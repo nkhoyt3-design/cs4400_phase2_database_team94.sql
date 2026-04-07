@@ -230,7 +230,6 @@ create procedure add_friend_connection (
     in ip_listenerID2 varchar(20)
 )
 sp_main: begin
-	sp_main: begin
     if ip_listenerID1 is null or ip_listenerID2 is null then
         leave sp_main;
     end if;
