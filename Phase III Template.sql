@@ -4,7 +4,7 @@
 -- Team __
 -- Team Member Name (GT username)
 -- Team Member Name (GT username)
--- Team Member Name (GT username)
+-- Nathan Tran (ntran306)
 -- Team Member Name (GT username)
 
 -- Directions:
@@ -50,16 +50,16 @@ sp_main: begin
 	if ip_listenerID is null or ip_new_date is null then 
 		leave sp_main;
     end if;
-    if not exists (select 1 from listener where accountID = ip_listenerID) then 
+    if not exists (select * from listener where accountID = ip_listenerID) then 
 		leave sp_main;
     end if;
-    if not exists (select 1 from listener where accountID = ip_listenerID and subscription is not null) then 
+    if not exists (select * from listener where accountID = ip_listenerID and subscription is not null) then 
 		leave sp_main;
     end if;
     if ip_new_date <= curdate() then
 		leave sp_main;
     end if;
-    if not exists (select 1 from subscription s join listener l on l.subscription = s.subscriptionID where l.accountID = ip_listenerID and ip_new_date > s.end_date) then
+    if not exists (select * from subscription s join listener l on l.subscription = s.subscriptionID where l.accountID = ip_listenerID and ip_new_date > s.end_date) then
 		leave sp_main;
     end if;
     update subscription
@@ -141,9 +141,35 @@ create procedure add_podcast_episode(
 )
 sp_main: begin
 	-- code here
-    if ip_creatorID is null or ip_contentID is null then
+    declare ep_num int;
+
+    if ip_creatorID is null or ip_contentID is null or ip_podcastID is null then
         leave sp_main;
     end if;
+    if ip_title is null or ip_length is null or ip_maturity_rating is null or ip_language is null or ip_release_date is null or ip_topic is null then
+		leave sp_main;
+    end if;
+    if exists (select * from content where contentID = ip_contentID) then
+		leave sp_main;
+	end if;
+    if not exists (select * from creator where accountID = ip_creatorID) then
+		leave sp_main;
+	end if;
+    if exists (select * from podcast_episode pe join creates c on pe.contentID = c.contentID where pe.podcastId = ip_podcastID and ip_creatorID != c.creatorID) then
+		leave sp_main;
+    end if;
+    if ip_length < 60 then -- someone check if we also need to include max length too
+		leave sp_main;
+	end if;
+    
+	select coalesce(max(episode_number), 0) + 1 into ep_num from podcast_episode where podcastID = ip_podcastID; -- someone check if this the best way to do this
+    if ip_podcastID not in (select podcastID from podcast_series) then
+		insert into podcast_series (podcastID, title, description) values (ip_podcastID, ip_podcast_title, ip_podcast_description);
+    end if;
+    
+    insert into content (contentID, title, content_length, maturity, content_language, release_date) values (ip_contentID, ip_title, ip_length, ip_maturity_rating, ip_language, ip_release_date);
+	insert into creates (contentID, creatorID) values (ip_contentID, ip_creatorID);
+    insert into podcast_episode (contentID, podcastID, topic, episode_number) values (ip_contentID, ip_podcastID, ip_topic, ep_num);
 end //
 delimiter ;
 
@@ -208,13 +234,13 @@ sp_main: begin
     if ip_creatorID is null or ip_contentID is null then
         leave sp_main;
     end if;
-    if not exists (select 1 from creator where ip_creatorID = accountID) then
+    if not exists (select * from creator where ip_creatorID = accountID) then
         leave sp_main;
     end if;
-    if not exists (select 1 from content where ip_contentID = contentID) then
+    if not exists (select * from content where ip_contentID = contentID) then
         leave sp_main;
     end if;
-    if not exists (select 1 from creates where creatorID = ip_creatorID and ip_contentID = contentID) then
+    if not exists (select * from creates where creatorID = ip_creatorID and ip_contentID = contentID) then
         leave sp_main;
     end if;
 
