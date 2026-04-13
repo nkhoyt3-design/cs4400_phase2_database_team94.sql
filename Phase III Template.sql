@@ -1,11 +1,11 @@
 -- CS4400: Introduction to Database Systems (Spring 2026)
 -- Phase III: Stored Procedures [v0] [March 12th, 2026]
 
--- Team __
--- Team Member Name (GT username)
--- Team Member Name (GT username)
+-- Team 94
+-- Nicholas Hoyt (nhoyt6)
+-- Srivarun Hathwar (shathwar6)
 -- Nathan Tran (ntran306)
--- Team Member Name (GT username)
+-- John Neubauer (jneubauer3)
 
 -- Directions:
 -- Please follow all instructions for Phase III in the instructions document.
@@ -192,7 +192,26 @@ create procedure stream_content(
     in ip_contentID varchar(20)
 )
 sp_main: begin
-	-- code here
+	if ip_listenerID is null or ip_contentID is null then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from listener where accountID = ip_listenerID) then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from content where contentID = ip_contentID) then
+        leave sp_main;
+    end if;
+
+    if exists (select * from content where contentID = ip_contentID and maturity = 'Explicit') then
+        if (select TIMESTAMPDIFF(YEAR, bdate, CURDATE()) from user where accountID = ip_listenerID) < 18 then
+            leave sp_main;
+        end if;
+    end if;
+
+    update listener
+    set streams = ip_contentID, timestamp = 0 where accountID = ip_listenerID;
 end //
 delimiter ;
 
@@ -211,7 +230,23 @@ create procedure add_friend_connection (
     in ip_listenerID2 varchar(20)
 )
 sp_main: begin
-	-- code here
+    if ip_listenerID1 is null or ip_listenerID2 is null then
+        leave sp_main;
+    end if;
+    if ip_listenerID1 = ip_listenerID2 then
+        leave sp_main;
+    end if;
+    if not exists (select * from listener where accountID = ip_listenerID1) then
+        leave sp_main;
+    end if;
+    if not exists (select * from listener where accountID = ip_listenerID2) then
+        leave sp_main;
+    end if;
+    if exists (select * from friends where friender = ip_listenerID1 and friendee = ip_listenerID2) then
+        leave sp_main;
+    end if;
+    
+    insert into friends (friender, friendee) values (ip_listenerID1, ip_listenerID2);
 end //
 delimiter ; 
 
