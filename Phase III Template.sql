@@ -162,7 +162,7 @@ sp_main: begin
 		leave sp_main;
 	end if;
     
-	select coalesce(max(episode_number), 0) + 1 into ep_num from podcast_episode where podcastID = ip_podcastID; -- someone check if this the best way to do this
+	select coalesce(max(episode_number), 0) + 1 into ep_num from podcast_episode where podcastID = ip_podcastID;
     if ip_podcastID not in (select podcastID from podcast_series) then
 		insert into podcast_series (podcastID, title, description) values (ip_podcastID, ip_podcast_title, ip_podcast_description);
     end if;
@@ -264,6 +264,7 @@ delimiter //
 create procedure cancel_subscription(in ip_subscription_id varchar(20))
 sp_main: begin
     -- code here
+    
 end //
 delimiter ;
 
