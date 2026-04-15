@@ -298,8 +298,7 @@ drop procedure if exists cancel_subscription;
 delimiter //
 create procedure cancel_subscription(in ip_subscription_id varchar(20))
 sp_main: begin
-    -- code here
-    
+    -- code here  
 end //
 delimiter ;
 
