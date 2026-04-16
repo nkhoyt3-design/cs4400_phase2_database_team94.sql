@@ -359,6 +359,33 @@ create procedure add_song_to_playlist(
 )
 sp_main: begin
     -- code here
+	if ip_username is null or ip_playlistID is null or ip_contentID is null then
+		leave sp_main;
+	end if;
+    
+    if ip_username not in (select username from listener) then
+		leave sp_main;
+	end if;
+
+    if ip_playlistID not in (select playlistID from playlist where listenerID in 
+    (select accountID from listener where username = ip_username)) then
+		leave sp_main;
+    end if;
+    if ip_contentID not in (select contentID from song) then 
+		leave sp_main;
+    end if;
+    if ip_contentID in (select songID from makes_up where playlistID = ip_playlistID) then 
+		leave sp_main;
+    end if;
+    
+    if ip_playlistID in (select playlistID from makes_up) then
+		insert into makes_up (songID, playlistID, track_order) select ip_contentID, ip_playlistID, max(track_order) +1
+		from makes_up
+		where playlistID = ip_playlistID;
+    else 
+		insert into makes_up (songID, playlistID, track_order)
+		values (ip_contentID, ip_playlistID, 1);
+	end if;
 end //
 delimiter ;
 
