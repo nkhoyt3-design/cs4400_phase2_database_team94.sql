@@ -398,28 +398,33 @@ create procedure add_song_to_playlist(
     in ip_contentID varchar(20)
 )
 sp_main: begin
-	 if ip_username is null or ip_playlistID is null then
+    declare vaccountID varchar(20);
+
+	 if ip_username is null or ip_playlistID is null or ip_contentID is null then
 		leave sp_main;
 	end if;
-    if ip_username not in (select username from listener) then
-		leave sp_main;
-	end if;
-    if ip_playlistID not in (select playlistID from playlist) then 
-		leave sp_main;
-	end if;
-    if ip_playlistID not in (select playlistID from playlist where listenerID in 
-    (select accountID from listener where username = ip_username)) then 
-		leave sp_main;
-	end if;
-    if ip_playlistID not in (select playlistID from makes_up) then
-		leave sp_main;
+
+    if not exists (select * from playlist where playlistID = ip_playlistID) then
+        leave sp_main;
     end if;
-    
-    
-    call stream_content(
-    (select accountID from listener where username = ip_username)
-    , (select m.songID from makes_up m join content c on m.songID = c.contentID where m.playlistID = ip_playlistID order by
-    c.title asc limit 1));
+
+    select accountID into vaccountID from listener where username = ip_username;
+
+    if not exists (select * from playlist where playlistID = ip_playlistID and listenerID = vaccountID) then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from song where contentID = ip_contentID) then
+        leave sp_main;
+    end if;
+
+    if exists (select * from makes_up where songID = ip_contentID and playlistID = ip_playlistID) then
+        leave sp_main;
+    end if;
+
+    insert into makes_up (songID, playlistID, track_order)
+    select ip_contentID, ip_playlistID, coalesce(max(track_order), 0) + 1
+    from makes_up where playlistID = ip_playlistID;
 end //
 delimiter ;
 
@@ -571,11 +576,11 @@ sp_main: begin
     end if;
 
     if ip_albumName is not null then
-        if not exists (select * from album where albumName = ip_albumName and creatorID = ip_creatorID) then
+        if not exists (select * from album where album_name = ip_albumName and creatorID = ip_creatorID) then
             leave sp_main;
         end if;
 
-        if (select count(*) from song where creatorID = ip_creatorID and albumName = ip_albumName) >= 16 then
+        if (select count(*) from song where album_name = ip_albumName) >= 16 then
             leave sp_main;
         end if;
     end if;
@@ -593,12 +598,12 @@ sp_main: begin
     values (ip_contentID, ip_creatorID);
 
     /* Song Import */ 
-    insert into song (contentID, creatorID, albumName)
+    insert into song (contentID, creatorID, album_name)
     values (ip_contentID, ip_creatorID, ip_albumName);
 
-    if (select stageName from creator where accountID = ip_creatorID) is null then 
+    if (select stage_name from creator where accountID = ip_creatorID) is null then 
         update creator
-        set stageName = (select fullname from user where accountID = ip_creatorID)
+        set stage_name = (select name from user where accountID = ip_creatorID)
         where accountID = ip_creatorID;
     end if;
 end //
