@@ -490,7 +490,50 @@ create procedure upload_song (
     in ip_albumName varchar(100)
 )
 sp_main: begin
-	-- code here
+	if ip_contentID is null or ip_contentLength is null or ip_title is null or ip_maturity is null or ip_contentLanguage is null
+    or ip_releaseDate is null or ip_creatorID is null then
+        leave sp_main;
+    end if;
+
+    if exists (select * from content where contentID = ip_contentID) then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from creator where accountID = ip_creatorID) then
+        leave sp_main;
+    end if;
+
+    if ip_albumName is not null then
+        if not exists (select * from album where albumName = ip_albumName and creatorID = ip_creatorID) then
+            leave sp_main;
+        end if;
+
+        if (select count(*) from song where creatorID = ip_creatorID and albumName = ip_albumName) >= 16 then
+            leave sp_main;
+        end if;
+    end if;
+
+    if ip_contentLength < 60 or ip_contentLength > 600 then
+        leave sp_main;
+    end if;
+
+    /* Content Import */ 
+    insert into content (contentID, title, content_length, maturity, content_language, release_date) 
+    values (ip_contentID, ip_title, ip_contentLength, ip_maturity, ip_contentLanguage, ip_releaseDate);
+
+    /* Creates Import */ 
+    insert into creates (contentID, creatorID) 
+    values (ip_contentID, ip_creatorID);
+
+    /* Song Import */ 
+    insert into song (contentID, creatorID, albumName)
+    values (ip_contentID, ip_creatorID, ip_albumName);
+
+    if (select stageName from creator where accountID = ip_creatorID) is null then 
+        update creator
+        set stageName = (select fullname from user where accountID = ip_creatorID)
+        where accountID = ip_creatorID;
+    end if;
 end //
 delimiter ; 
 
@@ -573,7 +616,35 @@ create procedure merge_playlists (
     in ip_playlistID2 varchar(20) -- second playlist
 )
 sp_main: begin
-	-- code here
+    if ip_playlistID1 is null or ip_playlistID2 is null then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from playlist where playlistID = ip_playlistID1) then
+        leave sp_main;
+    end if;
+
+    if not exists (select * from playlist where playlistID = ip_playlistID2) then
+        leave sp_main;
+    end if;
+
+    if ip_playlistID1 = ip_playlistID2 then
+        leave sp_main;
+    end if;
+
+    if (select listenerID from playlist where playlistID = ip_playlistID = playlistID1)
+    != (select listenerID from playlist where playlistID = ip_playlistID2) then
+        leave sp_main;
+    end if;
+
+    delete from makes_up where playlistID = ip_playlistID2 and songID in
+    (select songID from makes_up where playlistID = ip_playlistID1);
+
+    insert into makes_up (songID, playlistID, track_order)
+    select songID, ip_playlistID1,
+    track_order + (select coalesce(max(track_order), 0) from makes_up where playlistID = ip_playlistID1)
+
+
 end //
 delimiter ;
 
