@@ -379,6 +379,28 @@ create procedure start_playlist(
 )
 sp_main: begin
     -- code here
+	 if ip_username is null or ip_playlistID is null then
+		leave sp_main;
+	end if;
+    if ip_username not in (select username from listener) then
+		leave sp_main;
+	end if;
+    if ip_playlistID not in (select playlistID from playlist) then 
+		leave sp_main;
+	end if;
+    if ip_playlistID not in (select playlistID from playlist where listenerID in 
+    (select accountID from listener where username = ip_username)) then 
+		leave sp_main;
+	end if;
+    if ip_playlistID not in (select playlistID from makes_up) then
+		leave sp_main;
+    end if;
+    
+    
+    call stream_content(
+    (select accountID from listener where username = ip_username)
+    , (select m.songID from makes_up m join content c on m.songID = c.contentID where m.playlistID = ip_playlistID order by
+    c.title asc limit 1));
 end //
 delimiter ;
 
