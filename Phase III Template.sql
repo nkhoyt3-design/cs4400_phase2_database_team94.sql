@@ -298,7 +298,22 @@ drop procedure if exists cancel_subscription;
 delimiter //
 create procedure cancel_subscription(in ip_subscription_id varchar(20))
 sp_main: begin
-    -- code here  
+    -- code here
+	if ip_subscription_id is null then
+		leave sp_main;
+	end if;
+	if not exists (select * from subscription where subscriptionID = ip_subscription_id) then
+		leave sp_main;
+	end if;
+    
+    delete from friends where friender in (select accountID from listener where subscription = ip_subscription_id) or friendee in (select
+    accountID from listener where subscription = ip_subscription_id);
+	
+	delete from playlist where listenerID in (select accountID from listener where subscription = ip_subscription_id);
+    
+    delete from subscription 
+    where subscriptionID = ip_subscription_id;
+    
 end //
 delimiter ;
 
