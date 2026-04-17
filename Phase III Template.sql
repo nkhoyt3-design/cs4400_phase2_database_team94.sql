@@ -337,7 +337,47 @@ create procedure create_playlist(
     in ip_contentID varchar(20)
 )
 sp_main: begin
-    -- code here
+    declare listenerID varchar(20);
+
+    /* Null Check */
+    if ip_username is null or ip_playlist_name is null then
+        leave sp_main;
+    end if;
+
+    /* Null Check */
+    if ip_playlistID is null or ip_contentID is null then
+        leave sp_main;
+    end if;
+
+
+    /* Playlist ID Check */
+    if exists (select * from playlist where playlistID = ip_playlistID) then
+        leave sp_main;
+    end if;
+
+    /* Username */
+    if not exists (select * from listener where username = ip_username) then
+        leave sp_main;
+    end if;
+
+    select accountID into listenerID from listener where username = ip_username;
+
+    /* Content ID Check */
+    if not exists (select * from song where contentID = ip_contentID) then 
+        leave sp_main;
+    end if;
+
+    if (select subscription from listener where username = ip_username) is null then
+        if (select count(*) from playlist join listener on listenerID = accountID where username = ip_username) >= 5 then
+            leave sp_main;
+        end if;
+    end if;
+
+    insert into playlist (playlistID, name, listenerID)
+    values (ip_playlistID, ip_playlist_name, listenerID);
+
+    call add_song_to_playlist(ip_username, ip_playlistID, ip_contentID);
+
 end //
 delimiter ;
 
@@ -630,7 +670,6 @@ sp_main: begin
 end //
 delimiter ;
 
-
 -- -----------------------------------------------------------------------------
 -- [14] merge_playlists()
 -- -----------------------------------------------------------------------------
@@ -670,7 +709,7 @@ sp_main: begin
         leave sp_main;
     end if;
 
-    if (select listenerID from playlist where playlistID = ip_playlistID = playlistID1)
+    if (select listenerID from playlist where playlistID = ip_playlistID1)
     != (select listenerID from playlist where playlistID = ip_playlistID2) then
         leave sp_main;
     end if;
@@ -681,8 +720,11 @@ sp_main: begin
     insert into makes_up (songID, playlistID, track_order)
     select songID, ip_playlistID1,
     track_order + (select coalesce(max(track_order), 0) from makes_up where playlistID = ip_playlistID1)
+    from makes_up where playlistID = ip_playlistID2;
 
+    delete from playlist where playlistID = ip_playlistID2;
 
+    call resequence_track_order(ip_playlistID1);
 end //
 delimiter ;
 
