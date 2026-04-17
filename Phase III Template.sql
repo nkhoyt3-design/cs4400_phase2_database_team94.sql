@@ -701,6 +701,14 @@ create procedure stop_stream (
 )
 sp_main: begin
     -- code here
+    if ip_accountID is NULL then
+        leave sp_main;
+    end if;
+    if not exists (select * from listener where accountID = ip_accountID and streams is not NULL) then
+        leave sp_main;
+    end if;
+
+    update listener set streams = NULL, timestamp = 0 where accountID = ip_accountID;
 end //
 delimiter ;
 
