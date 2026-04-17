@@ -885,7 +885,6 @@ sp_main: begin
             where creatorID = ip_creatorID and platform = 'TikTok' limit 1;
         end if;
     end if;
-
     -- if 2 albums, soundcloud
     if keep_platform is null then
         if (select count(*) from album where creatorID = ip_creatorID) >= 2 then
@@ -896,7 +895,6 @@ sp_main: begin
             end if;
         end if;
     end if;
-
     -- if younger than 2000-01-01, use snapchat
     if keep_platform is null then
         if (select bdate from user where accountID = ip_creatorID) >= '2000-01-01' then
