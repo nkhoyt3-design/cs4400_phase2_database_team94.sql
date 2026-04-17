@@ -359,33 +359,6 @@ create procedure add_song_to_playlist(
 )
 sp_main: begin
     -- code here
-	if ip_username is null or ip_playlistID is null or ip_contentID is null then
-		leave sp_main;
-	end if;
-    
-    if ip_username not in (select username from listener) then
-		leave sp_main;
-	end if;
-
-    if ip_playlistID not in (select playlistID from playlist where listenerID in 
-    (select accountID from listener where username = ip_username)) then
-		leave sp_main;
-    end if;
-    if ip_contentID not in (select contentID from song) then 
-		leave sp_main;
-    end if;
-    if ip_contentID in (select songID from makes_up where playlistID = ip_playlistID) then 
-		leave sp_main;
-    end if;
-    
-    if ip_playlistID in (select playlistID from makes_up) then
-		insert into makes_up (songID, playlistID, track_order) select ip_contentID, ip_playlistID, max(track_order) +1
-		from makes_up
-		where playlistID = ip_playlistID;
-    else 
-		insert into makes_up (songID, playlistID, track_order)
-		values (ip_contentID, ip_playlistID, 1);
-	end if;
 end //
 delimiter ;
 
@@ -437,8 +410,28 @@ create procedure create_user (
     in ip_user_type enum('creator', 'listener', 'both')
 )
 sp_main: begin
-    -- code here
+    if ip_accountID is NULL or ip_fullname is NULL or ip_birthdate is NULL or ip_email is NULL then
+        leave sp_main;
+    end if;
+    if exists (select * from user where ip_accountID = accountID) then
+        leave sp_main;
+    end if;
+    if TIMESTAMPDIFF(year, ip_birthdate, CURDATE()) < 13 then
+        leave sp_main;
+    end if;
+
+    insert into user values (ip_accountID, ip_fullname, ip_birthdate, ip_email);
+
+    if ip_user_type = 'creator' or ip_user_type = 'both' then
+        insert into creator (ip_accountID, ip_stagename, ip_bio);
+    else if ip_user_type = 'listener' or ip_user_type = 'both' then
+
+    else
+
+    end if;
+
 end //
+
 delimiter ; 
 
 -- -----------------------------------------------------------------------------
