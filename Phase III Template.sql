@@ -749,7 +749,7 @@ sp_main: begin
         leave sp_main;
     end if;
 
-    update listener set streams = NULL where accountID = ip_accountID;
+    update listener set streams = NULL, timestamp = NULL where accountID = ip_accountID;
 end //
 delimiter ;
 
