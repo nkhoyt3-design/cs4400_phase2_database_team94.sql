@@ -698,6 +698,8 @@ create procedure merge_playlists (
     in ip_playlistID2 varchar(20) -- second playlist
 )
 sp_main: begin
+    declare tmaxTrack int;
+
     if ip_playlistID1 is null or ip_playlistID2 is null then
         leave sp_main;
     end if;
@@ -720,11 +722,14 @@ sp_main: begin
     end if;
 
     delete from makes_up where playlistID = ip_playlistID2 and songID in
-    (select songID from makes_up where playlistID = ip_playlistID1);
+    (select songID from (select songID from makes_up where playlistID = ip_playlistID1) as alias);
+
+    select coalesce(max(track_order), 0) into tmaxTrack
+    from makes_up where playlistID = ip_playlistID1;
 
     insert into makes_up (songID, playlistID, track_order)
     select songID, ip_playlistID1,
-    track_order + (select coalesce(max(track_order), 0) from makes_up where playlistID = ip_playlistID1)
+    track_order + tmaxTrack
     from makes_up where playlistID = ip_playlistID2;
 
     delete from playlist where playlistID = ip_playlistID2;
