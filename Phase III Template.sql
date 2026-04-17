@@ -771,11 +771,29 @@ the content has no more than 5 creators associated with it. */
 drop procedure if exists add_feature;
 delimiter //
 create procedure add_feature (
-	in ip_contentID varchar(20), 
+	in ip_contentID varchar(20),
     in ip_creatorID varchar(20)
 )
 sp_main: begin
-    -- code here
+    if ip_contentID is null then
+        leave sp_main;
+    end if;
+    if ip_creatorID is null then
+        leave sp_main;
+    end if;
+    if not exists (select * from creator where accountID = ip_creatorID) then
+        leave sp_main;
+    end if;
+    if not exists (select * from content where contentID = ip_contentID) then
+        leave sp_main;
+    end if;
+    if exists (select * from creates where contentID = ip_contentID and creatorID = ip_creatorID) then
+        leave sp_main;
+    end if;
+    if (select count(*) from creates where contentID = ip_contentID) >= 5 then
+        leave sp_main;
+    end if;
+    insert into creates (contentID, creatorID) values (ip_contentID, ip_creatorID);
 end //
 delimiter ;
 
@@ -796,7 +814,27 @@ create procedure delete_episodes (
     in ip_num_episodes int
 )
 sp_main: begin
-    -- code here
+    if ip_podcastID is null then
+        leave sp_main;
+    end if;
+    if ip_num_episodes is null
+        leave sp_main;
+    end if;
+    if not exists (select * from podcast_series where podcastID = ip_podcastID) then
+        leave sp_main;
+    end if;
+    if ip_num_episodes < 0 then
+        leave sp_main;
+    end if;
+    if ip_num_episodes > (select count(*) from podcast_episode where podcastID = ip_podcastID) then
+        leave sp_main;
+    end if;
+    delete from content where contentID in (
+        select contentID from podcast_episode
+        where podcastID = ip_podcastID
+        order by episode_number desc
+        limit ip_num_episodes
+    );
 end //
 delimiter ;
 
@@ -822,6 +860,66 @@ create procedure remove_socials (
 	in ip_creatorID varchar(20)
 )
 sp_main: begin
-    -- code here
+    declare kept_platform varchar(50);
+    declare kept_handle varchar(50);
+    declare first_platform varchar(50);
+    declare first_handle varchar(50);
+
+    if not exists (select * from creator where accountID = ip_creatorID) then
+        leave sp_main;
+    end if;
+    -- setting first platform
+    select platform, handle into first_platform, first_handle
+    from socials where creatorID = ip_creatorID
+    order by platform asc, then handle asc
+    limit 1;
+    -- if podcaster, they use tiktok
+    if exists (
+        select * from creates c
+        join podcast_episode pe on c.contentID = pe.contentID
+        where c.creatorID = ip_creatorID
+    ) then
+        if exists (select 1 from socials where creatorID = ip_creatorID and platform = 'TikTok') then
+            set keep_platform = 'TikTok';
+            select handle into keep_handle from socials
+            where creatorID = ip_creatorID and platform = 'TikTok' limit 1;
+        end if;
+    end if;
+
+    -- if 2 albums, soundcloud
+    if keep_platform is null then
+        if (select count(*) from album where creatorID = ip_creatorID) >= 2 then
+            if exists (select 1 from socials where creatorID = ip_creatorID and platform = 'SoundCloud') then
+                set keep_platform = 'SoundCloud';
+                select handle into keep_handle from socials
+                where creatorID = ip_creatorID and platform = 'SoundCloud' limit 1;
+            end if;
+        end if;
+    end if;
+
+    -- if younger than 2000-01-01, use snapchat
+    if keep_platform is null then
+        if (select bdate from user where accountID = ip_creatorID) >= '2000-01-01' then
+            if exists (select 1 from socials where creatorID = ip_creatorID and platform = 'Snapchat') then
+                set keep_platform = 'Snapchat';
+                select handle into keep_handle from socials
+                where creatorID = ip_creatorID and platform = 'Snapchat' limit 1;
+            end if;
+        end if;
+    end if;
+    -- last rule, keep first in alphabet
+    if keep_platform is null then
+        set keep_platform = first_platform;
+        set keep_handle = first_handle;
+    end if;
+    -- delete rest of them
+    delete from socials
+    where creatorID = ip_creatorID
+      and not (platform = keep_platform and handle = keep_handle);
+    -- reinsert first alphabetically if gone
+    if not exists (select 1 from socials where creatorID = ip_creatorID) then
+        insert into socials (creatorID, platform, handle)
+        values (ip_creatorID, first_platform, first_handle);
+    end if;
 end //
 delimiter ;
