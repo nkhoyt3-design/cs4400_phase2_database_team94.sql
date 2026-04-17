@@ -747,7 +747,6 @@ create procedure stop_stream (
 	in ip_accountID varchar(20) -- listener
 )
 sp_main: begin
-    -- code here
     if ip_accountID is NULL then
         leave sp_main;
     end if;
@@ -755,7 +754,7 @@ sp_main: begin
         leave sp_main;
     end if;
 
-    update listener set streams = NULL, timestamp = 0 where accountID = ip_accountID;
+    update listener set streams = NULL, timestamp = NULL where accountID = ip_accountID;
 end //
 delimiter ;
 
