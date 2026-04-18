@@ -819,10 +819,12 @@ create procedure delete_episodes (
     in ip_num_episodes int
 )
 sp_main: begin
+    declare curr_contentID varchar(20);
+    declare counter int default 0;
     if ip_podcastID is null then
         leave sp_main;
     end if;
-    if ip_num_episodes is null
+    if ip_num_episodes is null then
         leave sp_main;
     end if;
     if not exists (select * from podcast_series where podcastID = ip_podcastID) then
@@ -834,12 +836,17 @@ sp_main: begin
     if ip_num_episodes > (select count(*) from podcast_episode where podcastID = ip_podcastID) then
         leave sp_main;
     end if;
-    delete from content where contentID in (
-        select contentID from podcast_episode
+    while counter < ip_num_episodes do
+        select contentID into curr_contentID
+        from podcast_episode
         where podcastID = ip_podcastID
         order by episode_number desc
-        limit ip_num_episodes
-    );
+        limit 1;
+
+        delete from content where contentID = curr_contentID;
+
+        set counter = counter + 1;
+    end while;
 end //
 delimiter ;
 
@@ -876,7 +883,7 @@ sp_main: begin
     -- setting first platform
     select platform, handle into first_platform, first_handle
     from socials where creatorID = ip_creatorID
-    order by platform asc, then handle asc
+    order by platform asc, handle asc
     limit 1;
     -- if podcaster, they use tiktok
     if exists (
@@ -885,40 +892,42 @@ sp_main: begin
         where c.creatorID = ip_creatorID
     ) then
         if exists (select 1 from socials where creatorID = ip_creatorID and platform = 'TikTok') then
-            set keep_platform = 'TikTok';
-            select handle into keep_handle from socials
+            set kept_platform = 'TikTok';
+            select handle into kept_handle from socials
             where creatorID = ip_creatorID and platform = 'TikTok' limit 1;
         end if;
     end if;
+
     -- if 2 albums, soundcloud
-    if keep_platform is null then
+    if kept_platform is null then
         if (select count(*) from album where creatorID = ip_creatorID) >= 2 then
             if exists (select 1 from socials where creatorID = ip_creatorID and platform = 'SoundCloud') then
-                set keep_platform = 'SoundCloud';
-                select handle into keep_handle from socials
+                set kept_platform = 'SoundCloud';
+                select handle into kept_handle from socials
                 where creatorID = ip_creatorID and platform = 'SoundCloud' limit 1;
             end if;
         end if;
     end if;
+
     -- if younger than 2000-01-01, use snapchat
-    if keep_platform is null then
+    if kept_platform is null then
         if (select bdate from user where accountID = ip_creatorID) >= '2000-01-01' then
             if exists (select 1 from socials where creatorID = ip_creatorID and platform = 'Snapchat') then
-                set keep_platform = 'Snapchat';
-                select handle into keep_handle from socials
+                set kept_platform = 'Snapchat';
+                select handle into kept_handle from socials
                 where creatorID = ip_creatorID and platform = 'Snapchat' limit 1;
             end if;
         end if;
     end if;
     -- last rule, keep first in alphabet
-    if keep_platform is null then
-        set keep_platform = first_platform;
-        set keep_handle = first_handle;
+    if kept_platform is null then
+        set kept_platform = first_platform;
+        set kept_handle = first_handle;
     end if;
     -- delete rest of them
     delete from socials
     where creatorID = ip_creatorID
-      and not (platform = keep_platform and handle = keep_handle);
+      and not (platform = kept_platform and handle = kept_handle);
     -- reinsert first alphabetically if gone
     if not exists (select 1 from socials where creatorID = ip_creatorID) then
         insert into socials (creatorID, platform, handle)
